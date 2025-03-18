@@ -1,55 +1,79 @@
-# Movie-Recommendation-System
 
-This application provides all the details of the requested movie such as overview, genre, release date, rating, runtime, top cast, reviews, recommended movies, etc.
 
-The details of the movies(title, genre, runtime, ratings, posters, etc) are fetched using an API by TMDB, https://www.themoviedb.org, and using the IMDB id of the movie in the API, I did web scraping to get the reviews given by the user in the IMDB site using `beautifulsoup4` and performed sentiment analysis on those reviews.
 
-## Link to the application
+# Movie Recommendation System Using Hybrid Filtering
 
-Check out the live demo: https://lookupforcinema.herokuapp.com
+## Overview
+This project implements a movie recommendation system that uses hybrid filtering techniques to provide personalized movie recommendations to users. By combining content-based filtering (based on movie features) and collaborative filtering (based on user preferences), this system aims to overcome the limitations of individual approaches such as the cold start problem, sparsity, and scalability issues.
 
-# Conference Paper Article About My Project
+## Background
+The exponential growth of data on the World Wide Web makes it difficult for users to find relevant content. Recommendation systems help filter valuable information from vast amounts of data. This movie recommendation system specifically provides personalized recommendations based on user preferences and behaviors.
+
+## Key Features
+- **Hybrid Filtering Approach**: Combines content-based and collaborative filtering techniques
+- **Personalized Recommendations**: Tailored suggestions based on user preferences
+- **Custom Dataset**: Uses IMDB dataset verified by Wikipedia, avoiding biases present in commonly used datasets like MovieLens
+- **Age and Genre Segregation**: Allows for more personalized recommendations based on demographic factors
+
+## Methodology
+The system employs three main filtering approaches:
+
+1. **Collaborative Filtering**: Predicts and recommends items based on similar users' preferences
+2. **Content-Based Filtering**: Provides recommendations based on similar types of user input
+3. **Hybrid Approach**: Combines both methods to overcome individual disadvantages
+
+## Dataset
+Unlike many recommendation systems that rely on the MovieLens dataset (which has reliability issues with rating information and is biased toward highly-rated movies), this project uses:
+- IMDB dataset
+- Further verified by Wikipedia
+- Supports segregation based on age and different genres
+
+## Technologies Used
+- Python
+- Data analysis libraries (Pandas, NumPy)
+- Machine learning frameworks
+- Data visualization tools
+
+## Installation
+```bash
+# Clone the repository
+git clone https://github.com/DARREN-2000/movie-recommendation-system.git
+
+# Navigate to the project directory
+cd movie-recommendation-system
+
+# Install required dependencies
+pip install -r requirements.txt
+```
+
+## Usage
+```python
+# Import the recommendation engine
+from recommender import MovieRecommender
+
+# Initialize the recommender
+recommender = MovieRecommender()
+
+# Train the model
+recommender.train()
+
+# Get movie recommendations for a user
+recommendations = recommender.get_recommendations(user_id=123)
+```
+
+## Conference Paper Article About My Project
 
 (https://www.researchgate.net/publication/389884094_Movie_Recommendation_System_using_Hybrid_filtering)
 
-## Finding similar movies
-### Without taking content into account (Just based on ratings)
+## Author
+MORRIS DARREN BABU  
+M.S. Data Science  
+B.E. Computer Science  
+Department of Computer Science  
+Friedrich-Alexander-University Erlangen-Nürnberg, Germany
 
-Here just based on the ratings of the users for different movies, we use K nearest neighbours algorithm to find the movies which are similar.
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-### With taking Content into account
-
-Here we just information about the movies, in this case the information of genres to predict the most similar movies.
-
-## Matrix Factorisation(Collabarative Filtering)
-
-Two approaches were tried to do matrix factorisation, the low rank method is very slow, so used scipy's SVD for sparse matrix.
-
-## Architecture
-
-![110212434-597bb700-7ec1-11eb-9ffa-7ac319e33123](https://user-images.githubusercontent.com/41158838/140876791-13716f4e-7e62-4f1e-8f06-155ce8360f16.jpg)
-
-## Deep Learning Methods
-
-One popular recommender systems approach is called Matrix Factorisation. It works on the principle that we can learn a low-dimensional representation (embedding) of user and movie. For example, for each movie, we can have how much action it has, how long it is, and so on. For each user, we can encode how much they like action, or how much they like long movies, etc. Thus, we can combine the user and the movie embeddings to estimate the ratings on unseen movies. This approach can also be viewed as: given a matrix (A [M X N]) containing users and movies, we want to estimate low dimensional matrices (W [M X k] and H [M X k]), such that: A≈W.H<sup>T</sub>
-### 1.Matrix Factorisation based on Deep learning
-### 2. Matrix Factorisation based on Deep learning with non negative embeddings.
-### 3. Advanced neural network with different number of embeddings for both and movies.
-
-## Required Tools
-
-1. Keras
-2. Scipy
-3. Numpy
-4. Pandas
-5. python 3
-
-### Sources of the datasets 
-
-1. [IMDB 5000 Movie Dataset](https://www.kaggle.com/carolzhangdc/imdb-5000-movie-dataset)
-2. [The Movies Dataset](https://www.kaggle.com/rounakbanik/the-movies-dataset)
-3. [List of movies in 2018](https://en.wikipedia.org/wiki/List_of_American_films_of_2018)
-4. [List of movies in 2019](https://en.wikipedia.org/wiki/List_of_American_films_of_2019)
-5. [List of movies in 2020](https://en.wikipedia.org/wiki/List_of_American_films_of_2020)
-
-### Please do ⭐ the repository, if it helped you in anyways
+## Acknowledgments
+- IMDB and Wikipedia for the dataset resources
