@@ -1,137 +1,58 @@
-import numpy as np
+import flask
+import difflib
 import pandas as pd
-from flask import Flask, render_template, request
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import json
-import bs4 as bs
-import urllib.request
-import pickle
-import requests
-from datetime import date, datetime
 
-# load the nlp model and tfidf vectorizer from disk
-filename = 'nlp_model.pkl'
-clf = pickle.load(open(filename, 'rb'))
-vectorizer = pickle.load(open('tranform.pkl','rb'))
-    
-# converting list of string to list (eg. "["abc","def"]" to ["abc","def"])
-def convert_to_list(my_list):
-    my_list = my_list.split('","')
-    my_list[0] = my_list[0].replace('["','')
-    my_list[-1] = my_list[-1].replace('"]','')
-    return my_list
+app = flask.Flask(__name__, template_folder='templates')
 
-# convert list of numbers to list (eg. "[1,2,3]" to [1,2,3])
-def convert_to_list_num(my_list):
-    my_list = my_list.split(',')
-    my_list[0] = my_list[0].replace("[","")
-    my_list[-1] = my_list[-1].replace("]","")
-    return my_list
+df2 = pd.read_csv('./model/tmdb.csv')
 
-def get_suggestions():
-    data = pd.read_csv('main_data.csv')
-    return list(data['movie_title'].str.capitalize())
+count = CountVectorizer(stop_words='english')
+count_matrix = count.fit_transform(df2['soup'])
 
-app = Flask(__name__)
+cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
 
-@app.route("/")
-@app.route("/home")
-def home():
-    suggestions = get_suggestions()
-    return render_template('home.html',suggestions=suggestions)
+df2 = df2.reset_index()
+indices = pd.Series(df2.index, index=df2['title'])
+all_titles = [df2['title'][i] for i in range(len(df2['title']))]
 
+def get_recommendations(title):
+    cosine_sim = cosine_similarity(count_matrix, count_matrix)
+    idx = indices[title]
+    sim_scores = list(enumerate(cosine_sim[idx]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    sim_scores = sim_scores[1:11]
+    movie_indices = [i[0] for i in sim_scores]
+    tit = df2['title'].iloc[movie_indices]
+    dat = df2['release_date'].iloc[movie_indices]
+    return_df = pd.DataFrame(columns=['Title','Year'])
+    return_df['Title'] = tit
+    return_df['Year'] = dat
+    return return_df
 
-@app.route("/recommend",methods=["POST"])
-def recommend():
-    # getting data from AJAX request
-    title = request.form['title']
-    cast_ids = request.form['cast_ids']
-    cast_names = request.form['cast_names']
-    cast_chars = request.form['cast_chars']
-    cast_bdays = request.form['cast_bdays']
-    cast_bios = request.form['cast_bios']
-    cast_places = request.form['cast_places']
-    cast_profiles = request.form['cast_profiles']
-    imdb_id = request.form['imdb_id']
-    poster = request.form['poster']
-    genres = request.form['genres']
-    overview = request.form['overview']
-    vote_average = request.form['rating']
-    vote_count = request.form['vote_count']
-    rel_date = request.form['rel_date']
-    release_date = request.form['release_date']
-    runtime = request.form['runtime']
-    status = request.form['status']
-    rec_movies = request.form['rec_movies']
-    rec_posters = request.form['rec_posters']
-    rec_movies_org = request.form['rec_movies_org']
-    rec_year = request.form['rec_year']
-    rec_vote = request.form['rec_vote']
+# Set up the main route
+@app.route('/', methods=['GET', 'POST'])
 
-    # get movie suggestions for auto complete
-    suggestions = get_suggestions()
+def main():
+    if flask.request.method == 'GET':
+        return(flask.render_template('index.html'))
+            
+    if flask.request.method == 'POST':
+        m_name = flask.request.form['movie_name']
+        m_name = m_name.title()
+#        check = difflib.get_close_matches(m_name,all_titles,cutout=0.50,n=1)
+        if m_name not in all_titles:
+            return(flask.render_template('negative.html',name=m_name))
+        else:
+            result_final = get_recommendations(m_name)
+            names = []
+            dates = []
+            for i in range(len(result_final)):
+                names.append(result_final.iloc[i][0])
+                dates.append(result_final.iloc[i][1])
 
-    # call the convert_to_list function for every string that needs to be converted to list
-    rec_movies_org = convert_to_list(rec_movies_org)
-    rec_movies = convert_to_list(rec_movies)
-    rec_posters = convert_to_list(rec_posters)
-    cast_names = convert_to_list(cast_names)
-    cast_chars = convert_to_list(cast_chars)
-    cast_profiles = convert_to_list(cast_profiles)
-    cast_bdays = convert_to_list(cast_bdays)
-    cast_bios = convert_to_list(cast_bios)
-    cast_places = convert_to_list(cast_places)
-    
-    # convert string to list (eg. "[1,2,3]" to [1,2,3])
-    cast_ids = convert_to_list_num(cast_ids)
-    rec_vote = convert_to_list_num(rec_vote)
-    rec_year = convert_to_list_num(rec_year)
-    
-    # rendering the string to python string
-    for i in range(len(cast_bios)):
-        cast_bios[i] = cast_bios[i].replace(r'\n', '\n').replace(r'\"','\"')
-
-    for i in range(len(cast_chars)):
-        cast_chars[i] = cast_chars[i].replace(r'\n', '\n').replace(r'\"','\"') 
-    
-    # combining multiple lists as a dictionary which can be passed to the html file so that it can be processed easily and the order of information will be preserved
-    movie_cards = {rec_posters[i]: [rec_movies[i],rec_movies_org[i],rec_vote[i],rec_year[i]] for i in range(len(rec_posters))}
-
-    casts = {cast_names[i]:[cast_ids[i], cast_chars[i], cast_profiles[i]] for i in range(len(cast_profiles))}
-
-    cast_details = {cast_names[i]:[cast_ids[i], cast_profiles[i], cast_bdays[i], cast_places[i], cast_bios[i]] for i in range(len(cast_places))}
-
-    # web scraping to get user reviews from IMDB site
-    sauce = urllib.request.urlopen('https://www.imdb.com/title/{}/reviews?ref_=tt_ov_rt'.format(imdb_id)).read()
-    soup = bs.BeautifulSoup(sauce,'lxml')
-    soup_result = soup.find_all("div",{"class":"text show-more__control"})
-
-    reviews_list = [] # list of reviews
-    reviews_status = [] # list of comments (good or bad)
-    for reviews in soup_result:
-        if reviews.string:
-            reviews_list.append(reviews.string)
-            # passing the review to our model
-            movie_review_list = np.array([reviews.string])
-            movie_vector = vectorizer.transform(movie_review_list)
-            pred = clf.predict(movie_vector)
-            reviews_status.append('Positive' if pred else 'Negative')
-
-    # getting current date
-    movie_rel_date = ""
-    curr_date = ""
-    if(rel_date):
-        today = str(date.today())
-        curr_date = datetime.strptime(today,'%Y-%m-%d')
-        movie_rel_date = datetime.strptime(rel_date, '%Y-%m-%d')
-
-    # combining reviews and comments into a dictionary
-    movie_reviews = {reviews_list[i]: reviews_status[i] for i in range(len(reviews_list))}     
-
-    # passing all the data to the html file
-    return render_template('recommend.html',title=title,poster=poster,overview=overview,vote_average=vote_average,
-        vote_count=vote_count,release_date=release_date,movie_rel_date=movie_rel_date,curr_date=curr_date,runtime=runtime,status=status,genres=genres,movie_cards=movie_cards,reviews=movie_reviews,casts=casts,cast_details=cast_details)
+            return flask.render_template('positive.html',movie_names=names,movie_date=dates,search_name=m_name)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
