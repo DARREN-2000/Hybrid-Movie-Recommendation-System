@@ -37,29 +37,35 @@ Unlike many recommendation systems that rely on the MovieLens dataset (which has
 ## Installation
 ```bash
 # Clone the repository
-git clone https://github.com/DARREN-2000/movie-recommendation-system.git
+git clone https://github.com/DARREN-2000/Hybrid-Movie-Recommendation-System.git
 
 # Navigate to the project directory
-cd movie-recommendation-system
+cd Hybrid-Movie-Recommendation-System
 
 # Install required dependencies
 pip install -r requirements.txt
 ```
 
 ## Usage
-```python
-# Import the recommendation engine
-from recommender import MovieRecommender
-
-# Initialize the recommender
-recommender = MovieRecommender()
-
-# Train the model
-recommender.train()
-
-# Get movie recommendations for a user
-recommendations = recommender.get_recommendations(user_id=123)
+```bash
+# Run local demo app
+streamlit run app.py
 ```
+
+Open the URL shown in terminal (usually `http://localhost:8501`) and enter a movie title to see recommendations.
+
+## Free and Easy Deployment (Demo)
+The easiest free option is **Streamlit Community Cloud**:
+
+1. Push this repository to GitHub.
+2. Go to [https://share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
+3. Click **New app** and select:
+   - Repository: `DARREN-2000/Hybrid-Movie-Recommendation-System`
+   - Branch: your branch (or `main`)
+   - Main file path: `app.py`
+4. Click **Deploy**.
+
+Your demo will be live on a free public URL in a few minutes.
 
 ## Conference Paper Article About My Project
 

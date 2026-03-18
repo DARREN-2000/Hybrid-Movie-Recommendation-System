@@ -1,58 +1,69 @@
-import flask
 import difflib
+
 import pandas as pd
+import streamlit as st
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-app = flask.Flask(__name__, template_folder='templates')
 
-df2 = pd.read_csv('./model/tmdb.csv')
+@st.cache_data(show_spinner=False)
+def load_movies():
+    return pd.read_csv("main_data.csv")
 
-count = CountVectorizer(stop_words='english')
-count_matrix = count.fit_transform(df2['soup'])
 
-cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
+@st.cache_resource(show_spinner=False)
+def build_movie_vectors(movie_features):
+    vectorizer = CountVectorizer(stop_words="english")
+    matrix = vectorizer.fit_transform(movie_features.fillna(""))
+    return matrix
 
-df2 = df2.reset_index()
-indices = pd.Series(df2.index, index=df2['title'])
-all_titles = [df2['title'][i] for i in range(len(df2['title']))]
 
-def get_recommendations(title):
-    cosine_sim = cosine_similarity(count_matrix, count_matrix)
-    idx = indices[title]
-    sim_scores = list(enumerate(cosine_sim[idx]))
-    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-    sim_scores = sim_scores[1:11]
-    movie_indices = [i[0] for i in sim_scores]
-    tit = df2['title'].iloc[movie_indices]
-    dat = df2['release_date'].iloc[movie_indices]
-    return_df = pd.DataFrame(columns=['Title','Year'])
-    return_df['Title'] = tit
-    return_df['Year'] = dat
-    return return_df
+def resolve_title(user_input, titles):
+    title_lookup = {title.lower(): title for title in titles}
+    direct_match = title_lookup.get(user_input.strip().lower())
+    if direct_match:
+        return direct_match
 
-# Set up the main route
-@app.route('/', methods=['GET', 'POST'])
+    candidates = difflib.get_close_matches(user_input.strip().lower(), title_lookup.keys(), n=1, cutoff=0.6)
+    if candidates:
+        return title_lookup[candidates[0]]
+    return None
 
-def main():
-    if flask.request.method == 'GET':
-        return(flask.render_template('index.html'))
-            
-    if flask.request.method == 'POST':
-        m_name = flask.request.form['movie_name']
-        m_name = m_name.title()
-#        check = difflib.get_close_matches(m_name,all_titles,cutout=0.50,n=1)
-        if m_name not in all_titles:
-            return(flask.render_template('negative.html',name=m_name))
+
+def get_recommendations(title, movies_df, movie_matrix, top_n=10):
+    idx = movies_df.index[movies_df["movie_title"] == title][0]
+    similarity_scores = sorted(
+        list(enumerate(cosine_similarity(movie_matrix[idx], movie_matrix)[0])),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    recommendations = []
+    for movie_idx, _score in similarity_scores[1 : top_n + 1]:
+        recommendations.append(movies_df.iloc[movie_idx]["movie_title"])
+    return recommendations
+
+
+st.set_page_config(page_title="Hybrid Movie Recommender Demo", page_icon="🎬")
+st.title("🎬 Hybrid Movie Recommendation Demo")
+st.write("Type any movie title and get 10 similar recommendations.")
+
+movies = load_movies()
+movie_matrix = build_movie_vectors(movies["comb"])
+titles = movies["movie_title"].dropna().tolist()
+
+movie_input = st.text_input("Movie title", placeholder="e.g., toy story")
+
+if st.button("Recommend", type="primary"):
+    if not movie_input.strip():
+        st.warning("Please enter a movie title.")
+    else:
+        matched_title = resolve_title(movie_input, titles)
+        if not matched_title:
+            st.error("Movie not found. Try a different title.")
         else:
-            result_final = get_recommendations(m_name)
-            names = []
-            dates = []
-            for i in range(len(result_final)):
-                names.append(result_final.iloc[i][0])
-                dates.append(result_final.iloc[i][1])
-
-            return flask.render_template('positive.html',movie_names=names,movie_date=dates,search_name=m_name)
-
-if __name__ == '__main__':
-    app.run()
+            st.success(f"Showing recommendations for: {matched_title}")
+            for rank, recommendation in enumerate(
+                get_recommendations(matched_title, movies, movie_matrix),
+                start=1,
+            ):
+                st.write(f"{rank}. {recommendation}")
