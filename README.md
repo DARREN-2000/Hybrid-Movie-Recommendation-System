@@ -57,7 +57,7 @@ Open the URL shown in terminal (usually `http://localhost:8501`) and enter a mov
 ## Free and Easy Deployment (Demo)
 The easiest free option is **Streamlit Community Cloud**:
 
-1. Push this repository to GitHub.
+1. Fork this repository (or push your branch changes to your own GitHub repo).
 2. Go to [https://share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
 3. Click **New app** and select:
    - Repository: `DARREN-2000/Hybrid-Movie-Recommendation-System`

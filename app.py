@@ -5,16 +5,24 @@ import streamlit as st
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+DATA_FILE = "main_data.csv"
+
 
 @st.cache_data(show_spinner=False)
 def load_movies():
-    return pd.read_csv("main_data.csv")
+    movies_df = pd.read_csv(DATA_FILE)
+    required_columns = {"comb", "movie_title"}
+    missing_columns = required_columns - set(movies_df.columns)
+    if missing_columns:
+        raise ValueError(f"{DATA_FILE} is missing required columns: {sorted(missing_columns)}")
+    movies_df["comb"] = movies_df["comb"].fillna("")
+    return movies_df
 
 
 @st.cache_resource(show_spinner=False)
 def build_movie_vectors(movie_features):
     vectorizer = CountVectorizer(stop_words="english")
-    matrix = vectorizer.fit_transform(movie_features.fillna(""))
+    matrix = vectorizer.fit_transform(movie_features)
     return matrix
 
 
@@ -31,7 +39,11 @@ def resolve_title(user_input, titles):
 
 
 def get_recommendations(title, movies_df, movie_matrix, top_n=10):
-    idx = movies_df.index[movies_df["movie_title"] == title][0]
+    matching_indices = movies_df.index[movies_df["movie_title"] == title]
+    if matching_indices.empty:
+        return []
+
+    idx = matching_indices[0]
     similarity_scores = sorted(
         list(enumerate(cosine_similarity(movie_matrix[idx], movie_matrix)[0])),
         key=lambda item: item[1],
@@ -61,9 +73,10 @@ if st.button("Recommend", type="primary"):
         if not matched_title:
             st.error("Movie not found. Try a different title.")
         else:
-            st.success(f"Showing recommendations for: {matched_title}")
-            for rank, recommendation in enumerate(
-                get_recommendations(matched_title, movies, movie_matrix),
-                start=1,
-            ):
-                st.write(f"{rank}. {recommendation}")
+            recommendations = get_recommendations(matched_title, movies, movie_matrix)
+            if not recommendations:
+                st.error("Could not generate recommendations for that title.")
+            else:
+                st.success(f"Showing recommendations for: {matched_title}")
+                for rank, recommendation in enumerate(recommendations, start=1):
+                    st.write(f"{rank}. {recommendation}")
