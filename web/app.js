@@ -20,6 +20,15 @@ function normalize(value) {
   return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function parseCsv(text) {
   const rows = [];
   let row = [];
@@ -143,7 +152,7 @@ function recommend(movieIndex, limit = DEFAULT_RECOMMENDATION_COUNT) {
 }
 
 function renderEmpty(message) {
-  resultsEl.innerHTML = `<div class="empty">${message}</div>`;
+  resultsEl.innerHTML = `<div class="empty">${escapeHtml(message)}</div>`;
 }
 
 function renderRecommendations(seedMovie, recommendations) {
@@ -156,9 +165,9 @@ function renderRecommendations(seedMovie, recommendations) {
 
   const cards = recommendations.map(({ candidate, score }, idx) => `
     <article class="card">
-      <h3>${idx + 1}. ${candidate.title}</h3>
-      <p><strong>Genres:</strong> ${candidate.genres}</p>
-      <p><strong>Director:</strong> ${candidate.director}</p>
+      <h3>${idx + 1}. ${escapeHtml(candidate.title)}</h3>
+      <p><strong>Genres:</strong> ${escapeHtml(candidate.genres)}</p>
+      <p><strong>Director:</strong> ${escapeHtml(candidate.director)}</p>
       <p><strong>Similarity:</strong> ${(score * 100).toFixed(1)}%</p>
     </article>
   `);
@@ -243,7 +252,7 @@ async function init() {
 
     const titleSample = state.movies
       .slice(0, MAX_AUTOCOMPLETE_SUGGESTIONS)
-      .map((movie) => `<option value="${movie.title.replace(/"/g, '&quot;')}"></option>`)
+      .map((movie) => `<option value="${escapeHtml(movie.title)}"></option>`)
       .join('');
 
     listEl.innerHTML = titleSample;
