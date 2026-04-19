@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hybrid Movie Recommender</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Hybrid Movie Recommender</h1>
+      <p>Find similar movies in seconds with a fast, browser-based hybrid recommendation engine.</p>
+    </header>
+
+    <section class="search-panel" aria-label="Movie search panel">
+      <label for="movie-input">Movie title</label>
+      <div class="search-row">
+        <input id="movie-input" list="movie-titles" type="text" placeholder="Type a movie title (e.g., Toy Story)" autocomplete="off" />
+        <datalist id="movie-titles"></datalist>
+        <button id="recommend-btn" type="button">Recommend</button>
+      </div>
+      <div class="actions-row">
+        <button id="random-btn" type="button" class="secondary">Pick random movie</button>
+        <button id="clear-btn" type="button" class="ghost">Clear</button>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section>
+      <h2 id="results-title">Recommendations</h2>
+      <div id="results" class="results" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>

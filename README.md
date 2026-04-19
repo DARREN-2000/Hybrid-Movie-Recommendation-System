@@ -33,33 +33,38 @@ Unlike many recommendation systems that rely on the MovieLens dataset (which has
 - Data analysis libraries (Pandas, NumPy)
 - Machine learning frameworks
 - Data visualization tools
+- HTML/CSS/JavaScript for the browser app
 
 ## Installation
 ```bash
 # Clone the repository
-git clone https://github.com/DARREN-2000/movie-recommendation-system.git
+git clone https://github.com/DARREN-2000/Hybrid-Movie-Recommendation-System.git
 
 # Navigate to the project directory
-cd movie-recommendation-system
+cd Hybrid-Movie-Recommendation-System
 
 # Install required dependencies
 pip install -r requirements.txt
 ```
 
-## Usage
-```python
-# Import the recommendation engine
-from recommender import MovieRecommender
-
-# Initialize the recommender
-recommender = MovieRecommender()
-
-# Train the model
-recommender.train()
-
-# Get movie recommendations for a user
-recommendations = recommender.get_recommendations(user_id=123)
+## Web App Usage (Local)
+```bash
+cd /path/to/Hybrid-Movie-Recommendation-System
+python -m http.server 8000
 ```
+Then open: `http://localhost:8000/web/`
+
+## GitHub Pages Hosting
+This repository now includes an automated workflow at:
+`.github/workflows/deploy-pages.yml`
+
+To publish:
+1. In GitHub, open **Settings → Pages**.
+2. Set **Build and deployment** source to **GitHub Actions**.
+3. Push to `main` (or run the workflow manually from **Actions**).
+4. Your app will be deployed from the `web/` bundle with `main_data.csv`.
+
+The deployed app entry point is `index.html` from the generated Pages artifact.
 
 ## Conference Paper Article About My Project
 
