@@ -6,6 +6,8 @@ const resultsTitleEl = document.getElementById('results-title');
 const recommendBtn = document.getElementById('recommend-btn');
 const randomBtn = document.getElementById('random-btn');
 const clearBtn = document.getElementById('clear-btn');
+const DEFAULT_RECOMMENDATION_COUNT = 10;
+const MAX_AUTOCOMPLETE_SUGGESTIONS = 3000;
 
 const state = {
   movies: [],
@@ -116,7 +118,7 @@ function scoreSimilarity(baseMovie, candidateMovie) {
   return overlap / Math.sqrt(a.size * b.size);
 }
 
-function recommend(movieIndex, limit = 10) {
+function recommend(movieIndex, limit = DEFAULT_RECOMMENDATION_COUNT) {
   const movie = state.movies[movieIndex];
   if (!movie) return [];
 
@@ -191,7 +193,7 @@ function onRecommend() {
 
   const seedMovie = state.movies[selectedIndex];
   inputEl.value = seedMovie.title;
-  const recs = recommend(selectedIndex, 10);
+  const recs = recommend(selectedIndex, DEFAULT_RECOMMENDATION_COUNT);
   setStatus(`Showing top ${recs.length} similar movies from ${state.movies.length.toLocaleString()} titles.`);
   renderRecommendations(seedMovie, recs);
 }
@@ -240,7 +242,7 @@ async function init() {
     buildIndexes();
 
     const titleSample = state.movies
-      .slice(0, 3000)
+      .slice(0, MAX_AUTOCOMPLETE_SUGGESTIONS)
       .map((movie) => `<option value="${movie.title.replace(/"/g, '&quot;')}"></option>`)
       .join('');
 
