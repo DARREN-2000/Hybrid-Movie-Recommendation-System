@@ -192,8 +192,8 @@ async function fetchDatasetText() {
     try {
       const response = await fetch(path);
       if (response.ok) return await response.text();
-    } catch (_error) {
-      // Try the next candidate path.
+    } catch (error) {
+      console.debug(`Dataset fetch failed for ${path}:`, error);
     }
   }
   throw new Error('Dataset file was not found at expected paths.');

@@ -78,7 +78,7 @@ This repo was upgraded from a research-style codebase to a deployable product ex
 From the repository root:
 
 ```bash
-cd /home/runner/work/Hybrid-Movie-Recommendation-System/Hybrid-Movie-Recommendation-System
+cd Hybrid-Movie-Recommendation-System
 python -m http.server 8000
 ```
 
