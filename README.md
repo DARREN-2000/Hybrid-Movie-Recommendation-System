@@ -1,84 +1,146 @@
+# Hybrid Movie Recommendation System (Production Web App)
 
+A production-ready movie recommendation web app that uses a hybrid feature representation (`comb`) from the project dataset and runs fully in the browser (no backend required for inference).
 
+## Live Deployment
 
-# Movie Recommendation System Using Hybrid Filtering
+- **GitHub Pages URL (target):** `https://darren-2000.github.io/Hybrid-Movie-Recommendation-System/`
+- **Deployment workflow:** `.github/workflows/deploy-pages.yml`
+- **Trigger:** push to `main` (or manual run via GitHub Actions)
 
-## Overview
-This project implements a movie recommendation system that uses hybrid filtering techniques to provide personalized movie recommendations to users. By combining content-based filtering (based on movie features) and collaborative filtering (based on user preferences), this system aims to overcome the limitations of individual approaches such as the cold start problem, sparsity, and scalability issues.
+> If you do not see the site yet, the deployment workflow is not on `main` yet or has not completed successfully.
 
-## Background
-The exponential growth of data on the World Wide Web makes it difficult for users to find relevant content. Recommendation systems help filter valuable information from vast amounts of data. This movie recommendation system specifically provides personalized recommendations based on user preferences and behaviors.
+---
 
-## Key Features
-- **Hybrid Filtering Approach**: Combines content-based and collaborative filtering techniques
-- **Personalized Recommendations**: Tailored suggestions based on user preferences
-- **Custom Dataset**: Uses IMDB dataset verified by Wikipedia, avoiding biases present in commonly used datasets like MovieLens
-- **Age and Genre Segregation**: Allows for more personalized recommendations based on demographic factors
+## Why this version is production-oriented
 
-## Methodology
-The system employs three main filtering approaches:
+This repo was upgraded from a research-style codebase to a deployable product experience:
 
-1. **Collaborative Filtering**: Predicts and recommends items based on similar users' preferences
-2. **Content-Based Filtering**: Provides recommendations based on similar types of user input
-3. **Hybrid Approach**: Combines both methods to overcome individual disadvantages
+- ✅ Static web app for easy hosting and wide compatibility
+- ✅ Better UX (search, random pick, clear/reset, status messaging)
+- ✅ Safer rendering (HTML escaping to prevent script injection from data)
+- ✅ Multi-path dataset loading (`./main_data.csv` and `../main_data.csv`) for both Pages and local `/web/` mode
+- ✅ GitHub Pages CI deployment workflow
+- ✅ Repo hygiene (`.gitignore` for generated Python artifacts)
+- ✅ Media-rich documentation (screenshots + short demo GIFs)
 
-## Dataset
-Unlike many recommendation systems that rely on the MovieLens dataset (which has reliability issues with rating information and is biased toward highly-rated movies), this project uses:
-- IMDB dataset
-- Further verified by Wikipedia
-- Supports segregation based on age and different genres
+---
 
-## Technologies Used
-- Python
-- Data analysis libraries (Pandas, NumPy)
-- Machine learning frameworks
-- Data visualization tools
-- HTML/CSS/JavaScript for the browser app
+## Product Screenshots
 
-## Installation
-```bash
-# Clone the repository
-git clone https://github.com/DARREN-2000/Hybrid-Movie-Recommendation-System.git
+### Home / Ready State
+![Home](docs/assets/screenshots/home.png)
 
-# Navigate to the project directory
-cd Hybrid-Movie-Recommendation-System
+### Recommendation Results
+![Recommendations](docs/assets/screenshots/recommendations.png)
 
-# Install required dependencies
-pip install -r requirements.txt
+---
+
+## Short Demo Videos (GIF)
+
+### Recommendation Flow
+![Recommendation Flow](docs/assets/demos/recommendation-flow.gif)
+
+### Quick Demo
+![Quick Demo](docs/assets/demos/quick-demo.gif)
+
+---
+
+## App Features
+
+- Hybrid-style recommendation behavior using token overlap from `comb`
+- Title search with suggestions (`datalist`)
+- Random movie exploration
+- Top-N recommendations with similarity score
+- Responsive UI for desktop and mobile
+- Error states for unknown titles and dataset loading failures
+
+---
+
+## Repository Structure
+
+```text
+.
+├── web/
+│   ├── index.html
+│   ├── styles.css
+│   └── app.js
+├── main_data.csv
+├── .github/workflows/deploy-pages.yml
+├── app.py                      # legacy Flask artifact
+└── movie.ipynb                 # experimentation notebook
 ```
 
-## Web App Usage (Local)
+---
+
+## Run Locally
+
+From the repository root:
+
 ```bash
-cd /path/to/Hybrid-Movie-Recommendation-System
+cd /home/runner/work/Hybrid-Movie-Recommendation-System/Hybrid-Movie-Recommendation-System
 python -m http.server 8000
 ```
-Then open: `http://localhost:8000/web/`
 
-## GitHub Pages Hosting
-This repository now includes an automated workflow at:
-`.github/workflows/deploy-pages.yml`
+Then open either:
 
-To publish:
-1. In GitHub, open **Settings → Pages**.
-2. Set **Build and deployment** source to **GitHub Actions**.
-3. Push to `main` (or run the workflow manually from **Actions**).
-4. Your app will be deployed from the `web/` bundle with `main_data.csv`.
+- `http://localhost:8000/` (if you copy `web/*` to root manually), or
+- `http://localhost:8000/web/` (supported by dataset fallback path logic)
 
-The deployed app entry point is `index.html` from the generated Pages artifact.
+---
 
-## Conference Paper Article About My Project
+## GitHub Pages Setup
 
-(https://www.researchgate.net/publication/389884094_Movie_Recommendation_System_using_Hybrid_filtering)
+1. Open **Settings → Pages** in your GitHub repository.
+2. Under **Build and deployment**, choose **GitHub Actions**.
+3. Ensure `.github/workflows/deploy-pages.yml` exists on `main`.
+4. Push to `main` (or run **Deploy GitHub Pages** manually from Actions).
+5. Wait for workflow completion, then open:
+   - `https://darren-2000.github.io/Hybrid-Movie-Recommendation-System/`
+
+---
+
+## How to verify deployment is running
+
+1. Go to **Actions** tab in GitHub.
+2. Open the latest **Deploy GitHub Pages** run.
+3. Confirm all jobs are green.
+4. Open the `page_url` shown in the deploy step output.
+5. Confirm UI shows:
+   - `Ready. Loaded XX,XXX movies.`
+
+---
+
+## Known Operational Notes
+
+- First load parses ~36k rows client-side; initial load can take a few seconds on slower devices.
+- Recommendations are based on token overlap in the dataset feature column (`comb`), not user-authenticated personalization.
+- `Procfile` and `app.py` are legacy server artifacts; static Pages app is the recommended production path.
+
+---
+
+## Data
+
+- Dataset file: `main_data.csv`
+- Key columns used by web app:
+  - `movie_title`
+  - `genres`
+  - `director_name`
+  - `comb`
+
+---
+
+## Research Reference
+
+Conference paper:
+https://www.researchgate.net/publication/389884094_Movie_Recommendation_System_using_Hybrid_filtering
+
+---
 
 ## Author
-MORRIS DARREN BABU  
+
+**MORRIS DARREN BABU**  
 M.S. Data Science  
 B.E. Computer Science  
 Department of Computer Science  
 Friedrich-Alexander-University Erlangen-Nürnberg, Germany
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-- IMDB and Wikipedia for the dataset resources

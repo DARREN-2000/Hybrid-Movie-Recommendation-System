@@ -8,6 +8,7 @@ const randomBtn = document.getElementById('random-btn');
 const clearBtn = document.getElementById('clear-btn');
 const DEFAULT_RECOMMENDATION_COUNT = 10;
 const MAX_AUTOCOMPLETE_SUGGESTIONS = 3000;
+const DATASET_PATH_CANDIDATES = ['./main_data.csv', '../main_data.csv'];
 
 const state = {
   movies: [],
@@ -180,6 +181,24 @@ function setStatus(message, isError = false) {
   statusEl.style.color = isError ? '#b42318' : '';
 }
 
+function setControlsEnabled(enabled) {
+  recommendBtn.disabled = !enabled;
+  randomBtn.disabled = !enabled;
+  clearBtn.disabled = !enabled;
+}
+
+async function fetchDatasetText() {
+  for (const path of DATASET_PATH_CANDIDATES) {
+    try {
+      const response = await fetch(path);
+      if (response.ok) return await response.text();
+    } catch (_error) {
+      // Try the next candidate path.
+    }
+  }
+  throw new Error('Dataset file was not found at expected paths.');
+}
+
 function onRecommend() {
   if (!state.loaded) {
     setStatus('Dataset is still loading. Please wait.', true);
@@ -222,14 +241,12 @@ function onClear() {
 }
 
 async function init() {
+  setControlsEnabled(false);
   setStatus('Loading movie dataset...');
   renderEmpty('Loading dataset, please wait...');
 
   try {
-    const response = await fetch('./main_data.csv');
-    if (!response.ok) throw new Error(`Failed to load dataset: ${response.status}`);
-
-    const csvText = await response.text();
+    const csvText = await fetchDatasetText();
     const rows = parseCsv(csvText);
     const header = rows.shift() || [];
 
@@ -257,6 +274,7 @@ async function init() {
 
     listEl.innerHTML = titleSample;
     state.loaded = true;
+    setControlsEnabled(true);
     setStatus(`Ready. Loaded ${state.movies.length.toLocaleString()} movies.`);
     renderEmpty('Enter a movie title to see recommendations.');
   } catch (error) {

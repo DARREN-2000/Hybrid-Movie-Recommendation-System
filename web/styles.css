@@ -49,6 +49,10 @@ button {
   cursor: pointer;
 }
 button:hover { background: var(--primary-hover); }
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 button.secondary { background: #0f766e; }
 button.secondary:hover { background: #115e59; }
 button.ghost {
