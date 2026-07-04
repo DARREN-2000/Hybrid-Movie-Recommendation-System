@@ -1,6 +1,7 @@
 import difflib
 import pandas as pd
 import streamlit as st
+import requests
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -35,6 +36,24 @@ def resolve_title(user_input, titles):
         return title_lookup[candidates[0]]
     return None
 
+def fetch_poster(movie_title, api_key):
+    """Fetches the poster URL for a given movie title from TMDB API."""
+    if not api_key:
+        return None
+    url = "https://api.themoviedb.org/3/search/movie"
+    try:
+        response = requests.get(url, params={"api_key": api_key, "query": movie_title}, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        if data.get("results"):
+            poster_path = data["results"][0].get("poster_path")
+            if poster_path:
+                return f"https://image.tmdb.org/t/p/w500{poster_path}"
+    except Exception as e:
+        # Silently fail for API errors so we still show local fallback
+        pass
+    return None
+
 def get_recommendations(title, movies_df, movie_matrix, top_n=10):
     matching_indices = movies_df.index[movies_df["movie_title"] == title]
     if matching_indices.empty:
@@ -55,6 +74,12 @@ def get_recommendations(title, movies_df, movie_matrix, top_n=10):
 
 with st.sidebar:
     st.image("https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", use_container_width=True)
+
+    st.markdown("### 🌐 Live Global Engine Mode")
+    st.info("Unlock rich movie posters by providing your TMDB API Key. Without a key, the app runs locally.")
+    tmdb_api_key = st.text_input("TMDB API Key", type="password", placeholder="Enter your key here")
+    st.write("---")
+
     st.title("About")
     st.info(
         "This project implements a movie recommendation system that uses hybrid filtering techniques "
@@ -104,15 +129,26 @@ if recommend_button:
                 for rank, row in enumerate(recommendations, start=1):
                     col_idx = (rank - 1) % 5
                     with cols[col_idx]:
-                        st.markdown(
-                            f"""
-                            <div style="background-color: #f0f2f6; padding: 15px; border-radius: 10px; height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                <h3 style="color: #1f77b4; font-size: 24px; margin-bottom: 5px;">#{rank}</h3>
-                                <h4 style="color: #333; font-size: 16px; margin: 0; line-height: 1.2;">{row['movie_title'].title()}</h4>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                        movie_title = row['movie_title'].title()
+
+                        poster_url = None
+                        if tmdb_api_key:
+                            poster_url = fetch_poster(movie_title, tmdb_api_key)
+
+                        if poster_url:
+                            st.image(poster_url, use_container_width=True)
+                            st.markdown(f"**#{rank} {movie_title}**")
+                        else:
+                            st.markdown(
+                                f"""
+                                <div style="background-color: #f0f2f6; padding: 15px; border-radius: 10px; height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <h3 style="color: #1f77b4; font-size: 24px; margin-bottom: 5px;">#{rank}</h3>
+                                    <h4 style="color: #333; font-size: 16px; margin: 0; line-height: 1.2;">{movie_title}</h4>
+                                </div>
+                                """,
+                                unsafe_allow_html=True
+                            )
+
                         # Optionally show genres if available
                         if "genres" in row and pd.notna(row["genres"]):
                             genres = str(row["genres"]).replace(" ", ", ")
