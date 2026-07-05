@@ -6,6 +6,7 @@ import streamlit as st
 import requests
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import os
 import scipy.sparse
 
 st.set_page_config(page_title="Hybrid Movie Recommender", page_icon="🎬", layout="wide")
@@ -157,8 +158,12 @@ with st.sidebar:
     st.info(
         "Unlock rich movie posters by providing your TMDB API Key. Without a key, the app runs locally."
     )
+    default_api_key = os.environ.get("DEFAULT_TMDB_API_KEY", "")
     tmdb_api_key = st.text_input(
-        "TMDB API Key", type="password", placeholder="Enter your key here"
+        "TMDB API Key",
+        type="password",
+        placeholder="Enter your key here",
+        value=default_api_key,
     )
     st.write("---")
 
@@ -185,10 +190,12 @@ titles = movies["movie_title"].dropna().tolist()
 
 col1, col2 = st.columns([3, 1])
 with col1:
-    movie_input = st.text_input(
-        "Enter a movie you love",
-        placeholder="e.g., toy story, jumanji, the matrix",
-        help="Type the name of a movie, and we will find the best recommendations for you.",
+    movie_input = st.selectbox(
+        "Select a movie you love",
+        options=titles,
+        index=None,
+        placeholder="e.g., Toy Story, Jumanji, The Matrix",
+        help="Choose a movie, and we will find the best recommendations for you.",
     )
 with col2:
     st.write("")  # spacing
