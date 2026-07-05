@@ -1,0 +1,38 @@
+graph TD
+    subgraph Client["Client Tier"]
+        UI[Streamlit UI]
+        Web[Stlite WebAssembly]
+    end
+
+    subgraph Data["Data Tier"]
+        CSV[(main_data.csv)]
+        TMDB[(TMDB API)]
+    end
+
+    subgraph Core["Processing Engine"]
+        Loader[Data Loader]
+        Vectorizer[CountVectorizer]
+        Matcher[Title Resolver]
+        Similarity[Cosine Similarity]
+    end
+
+    %% Connections
+    CSV --> Loader
+    Loader --> Vectorizer
+    Vectorizer --> Similarity
+
+    UI --> Matcher
+    Matcher --> Similarity
+    Similarity --> UI
+
+    UI -.-> |Poster Fetch| TMDB
+    TMDB -.-> UI
+
+    Web -.-> UI
+
+    classDef default fill:#161b22,stroke:#30363d,stroke-width:1px,color:#c9d1d9;
+    classDef highlight fill:#ff4b4b,stroke:#ff4b4b,stroke-width:2px,color:#ffffff,fill-opacity:0.2;
+    classDef external fill:#2ea043,stroke:#2ea043,stroke-width:2px,color:#ffffff,fill-opacity:0.2;
+
+    class UI highlight;
+    class Web,TMDB external;

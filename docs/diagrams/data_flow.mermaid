@@ -1,0 +1,22 @@
+flowchart LR
+    A[(CSV Dataset)] -->|Pandas Load| B(DataFrame)
+    B -->|Extract 'comb'| C(Text Features)
+    C -->|CountVectorizer| D{Feature Matrix}
+
+    E[User Input] -->|difflib match| F(Resolved Title)
+    F -->|Index Lookup| G(Target Vector)
+
+    D -->|Cosine Similarity| H(Similarity Scores)
+    G -->|Cosine Similarity| H
+
+    H -->|Sort Descending| I(Top 10 Indices)
+    I -->|Locate in DataFrame| J(Recommendations)
+
+    J -->|Render| K[Streamlit UI]
+
+    classDef default fill:#161b22,stroke:#30363d,stroke-width:1px,color:#c9d1d9;
+    classDef data fill:#1f6feb,stroke:#1f6feb,stroke-width:2px,color:#ffffff,fill-opacity:0.2;
+    classDef process fill:#d29922,stroke:#d29922,stroke-width:2px,color:#ffffff,fill-opacity:0.2;
+
+    class A,B data;
+    class D,H process;
