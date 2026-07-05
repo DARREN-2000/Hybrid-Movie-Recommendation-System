@@ -1,0 +1,29 @@
+sequenceDiagram
+    actor User
+    participant App as Streamlit App
+    participant Model as ML Engine
+    participant TMDB as TMDB API
+
+    User->>App: Launch Application
+    App->>Model: load_movies()
+    Model-->>App: DataFrame
+    App->>Model: build_movie_vectors()
+    Model-->>App: Sparse Matrix (CSR)
+
+    User->>App: Enters Movie Title ("Matrix")
+    App->>App: resolve_title("Matrix")
+    App-->>App: "The Matrix"
+
+    App->>Model: get_recommendations("The Matrix")
+    Model->>Model: Calculate Cosine Similarity
+    Model-->>App: Top 10 Recommendations
+
+    loop For each recommendation
+        alt TMDB API Key Provided
+            App->>TMDB: fetch_poster(title)
+            TMDB-->>App: Poster URL
+            App->>User: Render Poster + Title
+        else No API Key
+            App->>User: Render Local Fallback Card
+        end
+    end

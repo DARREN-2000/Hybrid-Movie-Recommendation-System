@@ -1,0 +1,61 @@
+<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117" />
+      <stop offset="100%" stop-color="#161b22" />
+    </linearGradient>
+    <linearGradient id="box" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#21262d" />
+      <stop offset="100%" stop-color="#30363d" />
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b949e" />
+    </marker>
+  </defs>
+
+  <rect width="800" height="400" rx="15" ry="15" fill="url(#bg)" stroke="#30363d" stroke-width="1.5" />
+
+  <!-- Data Source Layer -->
+  <rect x="50" y="50" width="150" height="300" rx="10" fill="url(#box)" stroke="#484f58" stroke-width="1" />
+  <text x="125" y="80" font-family="sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">Data Sources</text>
+
+  <rect x="70" y="110" width="110" height="60" rx="5" fill="#161b22" stroke="#484f58" stroke-width="1" />
+  <text x="125" y="145" font-family="sans-serif" font-size="14" fill="#c9d1d9" text-anchor="middle">main_data.csv</text>
+
+  <rect x="70" y="220" width="110" height="60" rx="5" fill="#161b22" stroke="#484f58" stroke-width="1" />
+  <text x="125" y="255" font-family="sans-serif" font-size="14" fill="#c9d1d9" text-anchor="middle">TMDB API</text>
+
+  <!-- Processing Engine Layer -->
+  <rect x="325" y="50" width="150" height="300" rx="10" fill="url(#box)" stroke="#484f58" stroke-width="1" />
+  <text x="400" y="80" font-family="sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">ML Engine</text>
+
+  <rect x="345" y="110" width="110" height="60" rx="5" fill="#161b22" stroke="#484f58" stroke-width="1" />
+  <text x="400" y="145" font-family="sans-serif" font-size="14" fill="#c9d1d9" text-anchor="middle">CountVectorizer</text>
+
+  <rect x="345" y="220" width="110" height="60" rx="5" fill="#161b22" stroke="#484f58" stroke-width="1" />
+  <text x="400" y="255" font-family="sans-serif" font-size="14" fill="#c9d1d9" text-anchor="middle">Cosine Sim</text>
+
+  <!-- Application Layer -->
+  <rect x="600" y="50" width="150" height="300" rx="10" fill="url(#box)" stroke="#484f58" stroke-width="1" />
+  <text x="675" y="80" font-family="sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">Application</text>
+
+  <rect x="620" y="110" width="110" height="60" rx="5" fill="#ff4b4b" fill-opacity="0.2" stroke="#ff4b4b" stroke-width="1" />
+  <text x="675" y="145" font-family="sans-serif" font-size="14" fill="#ff4b4b" text-anchor="middle">Streamlit App</text>
+
+  <rect x="620" y="220" width="110" height="60" rx="5" fill="#2ea043" fill-opacity="0.2" stroke="#2ea043" stroke-width="1" />
+  <text x="675" y="255" font-family="sans-serif" font-size="14" fill="#2ea043" text-anchor="middle">Stlite (Web)</text>
+
+  <!-- Connectors -->
+  <!-- Data to ML -->
+  <path d="M 180 140 L 345 140" fill="none" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow)" />
+  <!-- Data to App -->
+  <path d="M 180 250 L 620 250" fill="none" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5 5" />
+  <!-- ML to App -->
+  <path d="M 455 140 L 620 140" fill="none" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow)" />
+  <path d="M 455 250 L 530 250 L 530 140 L 620 140" fill="none" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Labels for Connectors -->
+  <text x="262" y="130" font-family="sans-serif" font-size="12" fill="#8b949e" text-anchor="middle">Features</text>
+  <text x="537" y="130" font-family="sans-serif" font-size="12" fill="#8b949e" text-anchor="middle">Matrix</text>
+  <text x="400" y="260" font-family="sans-serif" font-size="12" fill="#8b949e" text-anchor="middle">Posters</text>
+</svg>
